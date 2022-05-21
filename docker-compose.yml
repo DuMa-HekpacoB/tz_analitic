@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  app:
+    build: app/
+    container_name: fastapi-app
+    depends_on:
+      - postgres
+      - elasticsearch
+    ports:
+      - "8000:8000"
+    command: bash -c "uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - ./app:/app/
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:7.17.3
+    environment:
+      - node.name=kifarunix-demo-es
+      - cluster.name=es-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    volumes:
+#      - ./elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+  postgres:
+    image: postgres:12
+    container_name: tz_analitics_postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5435:5432'
+    volumes:
+      - ./db/:/var/lib/postgresql/data
